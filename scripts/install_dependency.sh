@@ -8,27 +8,28 @@ setup_ubuntu() {
 	
 	sudo apt install -yqq libglib2.0-dev libunwind-dev
 	sudo apt install -yqq libgoogle-perftools-dev
+	sudo apt install -yqq cmake
 }
 
 setup_centos() {
-	sudo yum install -y glib2-devel google-perftools-devel
+	sudo yum install -y glib2-devel google-perftools-devel cmake
 }
 
 setup_macOS() {
-	brew install glib google-perftools argp-standalone xxhash
+	brew install glib google-perftools argp-standalone xxhash cmake
 }
 
-install_cmake() {
-	pushd /tmp/;
-	wget https://github.com/Kitware/CMake/releases/download/v3.31.0/cmake-3.31.0-linux-x86_64.sh;
-	mkdir -p $HOME/software/cmake 2>/dev/null || true;
-	bash cmake-3.31.0-linux-x86_64.sh --skip-license --prefix=$HOME/software/cmake;
-	echo 'export PATH=$HOME/software/cmake/bin:$PATH' >> $HOME/.bashrc;
-	echo 'export PATH=$HOME/software/cmake/bin:$PATH' >> $HOME/.zshrc;
-	source $HOME/.bashrc;
-	source $HOME/.zshrc;
-	popd;
-}
+# install_cmake() {
+# 	pushd /tmp/;
+# 	wget https://github.com/Kitware/CMake/releases/download/v3.31.0/cmake-3.31.0-linux-x86_64.sh;
+# 	mkdir -p $HOME/software/cmake 2>/dev/null || true;
+# 	bash cmake-3.31.0-linux-x86_64.sh --skip-license --prefix=$HOME/software/cmake;
+# 	echo 'export PATH=$HOME/software/cmake/bin:$PATH' >> $HOME/.bashrc;
+# 	echo 'export PATH=$HOME/software/cmake/bin:$PATH' >> $HOME/.zshrc;
+# 	source $HOME/.bashrc;
+# 	source $HOME/.zshrc;
+# 	popd;
+# }
 
 install_xgboost() {
     pushd /tmp/
@@ -42,7 +43,7 @@ install_xgboost() {
 	if [[ ${GITHUB_ACTIONS:-} == "true" ]]; then
 		make
 	else
-		make -j $(nproc)
+		make -j 8
 	fi
 	sudo make install
 }
@@ -59,14 +60,14 @@ install_lightgbm() {
 	if [[ ${GITHUB_ACTIONS:-} == "true" ]]; then
 		make
 	else
-		make -j $(nproc)
+		make -j 8
 	fi
 	sudo make install
 }
 
 install_zstd() {
     pushd /tmp/;
-	if [ ! -f "zstd-1.5.0.tar.gz" ]; then 
+	if [ ! -f "zstd-1.5.0.tar.gz" ]; then
 	    wget https://github.com/facebook/zstd/releases/download/v1.5.0/zstd-1.5.0.tar.gz
 	    tar xvf zstd-1.5.0.tar.gz;
 	fi
@@ -74,7 +75,7 @@ install_zstd() {
     mkdir _build || true
     pushd _build/;
     cmake ..
-    make -j $(nproc)
+    make -j 8
     sudo make install
 }
 
@@ -86,14 +87,14 @@ elif [ -n "$(uname -a | grep Darwin)" ]; then
     setup_macOS
 else
     setup_centos
-fi 
+fi
 
-install_cmake
+# install_cmake
 install_zstd
 
-if [[ ! ${GITHUB_ACTIONS:-} == "true" ]]; then
-	install_xgboost
-	install_lightgbm
-fi
+# if [[ ! ${GITHUB_ACTIONS:-} == "true" ]]; then
+# 	install_xgboost
+# 	install_lightgbm
+# fi
 
 cd $CURR_DIR
